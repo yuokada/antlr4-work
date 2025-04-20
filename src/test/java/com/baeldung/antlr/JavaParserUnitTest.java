@@ -23,7 +23,7 @@ public class JavaParserUnitTest {
         UppercaseMethodListener uppercaseMethodListener = new UppercaseMethodListener();
         walker.walk(uppercaseMethodListener, tree);
 
-        assertEquals(uppercaseMethodListener.getErrors().size(), 1);
+        assertEquals(1, uppercaseMethodListener.getErrors().size());
         assertEquals(uppercaseMethodListener.getErrors().get(0), "Method DoSomething is uppercased!");
     }
 }

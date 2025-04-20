@@ -1,7 +1,7 @@
 package com.baeldung.antlr;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertEquals;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.baeldung.antlr.log.LogListener;
@@ -30,7 +30,7 @@ public class LogParserUnitTest {
         LogListener logWalker = new LogListener();
         walker.walk(logWalker, logParser.log());
 
-        assertEquals(logWalker.getEntries().size(), 2);
+        assertEquals(2, logWalker.getEntries().size());
         LogEntry error = logWalker.getEntries().get(1);
         assertEquals(error.getLevel(), LogLevel.ERROR);
         assertEquals(error.getMessage(), "Bad thing happened");
