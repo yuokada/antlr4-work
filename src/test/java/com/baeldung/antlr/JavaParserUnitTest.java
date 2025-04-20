@@ -1,13 +1,13 @@
 package com.baeldung.antlr;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.baeldung.antlr.java.UppercaseMethodListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import org.junit.Test;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class JavaParserUnitTest {
 
@@ -23,8 +23,7 @@ public class JavaParserUnitTest {
         UppercaseMethodListener uppercaseMethodListener = new UppercaseMethodListener();
         walker.walk(uppercaseMethodListener, tree);
 
-        assertThat(uppercaseMethodListener.getErrors().size(), is(1));
-        assertThat(uppercaseMethodListener.getErrors().get(0),
-                is("Method DoSomething is uppercased!"));
+        assertEquals(uppercaseMethodListener.getErrors().size(), 1);
+        assertEquals(uppercaseMethodListener.getErrors().get(0), "Method DoSomething is uppercased!");
     }
 }

@@ -1,7 +1,8 @@
 package com.baeldung.antlr;
 
-//import static org.hamcrest.CoreMatchers.is;
-//import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.baeldung.antlr.log.LogListener;
 import com.baeldung.antlr.log.model.LogLevel;
@@ -12,8 +13,8 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 // import org.junit.Test;
 
 import java.time.LocalDateTime;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.Assertions;
 
 
 public class LogParserUnitTest {
@@ -29,10 +30,10 @@ public class LogParserUnitTest {
         LogListener logWalker = new LogListener();
         walker.walk(logWalker, logParser.log());
 
+        assertEquals(logWalker.getEntries().size(), 2);
         LogEntry error = logWalker.getEntries().get(1);
-//        assert(logWalker.getEntries().size(), is(2));
-//        assertThat(error.getLevel(), is(LogLevel.ERROR));
-//        assertThat(error.getMessage(), is("Bad thing happened"));
-//        assertThat(error.getTimestamp(), is(LocalDateTime.of(2018,5,5,14,20,24)));
+        assertEquals(error.getLevel(), LogLevel.ERROR);
+        assertEquals(error.getMessage(), "Bad thing happened");
+        assertEquals(error.getTimestamp(), LocalDateTime.of(2018,5,5,14,20,24));
     }
 }
