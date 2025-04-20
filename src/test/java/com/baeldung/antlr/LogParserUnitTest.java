@@ -28,8 +28,8 @@ public class LogParserUnitTest {
 
         assertEquals(2, logWalker.getEntries().size());
         LogEntry error = logWalker.getEntries().get(1);
-        assertEquals(error.getLevel(), LogLevel.ERROR);
-        assertEquals(error.getMessage(), "Bad thing happened");
-        assertEquals(error.getTimestamp(), LocalDateTime.of(2018,5,5,14,20,24));
+        assertEquals(LogLevel.ERROR, error.getLevel());
+        assertEquals("Bad thing happened", error.getMessage());
+        assertEquals(LocalDateTime.of(2018,5,5,14,20,24), error.getTimestamp());
     }
 }

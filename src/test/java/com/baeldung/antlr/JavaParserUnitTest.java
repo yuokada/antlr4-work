@@ -24,6 +24,7 @@ public class JavaParserUnitTest {
         walker.walk(uppercaseMethodListener, tree);
 
         assertEquals(1, uppercaseMethodListener.getErrors().size());
-        assertEquals(uppercaseMethodListener.getErrors().get(0), "Method DoSomething is uppercased!");
+        assertEquals("Method DoSomething is uppercased!",
+            uppercaseMethodListener.getErrors().get(0));
     }
 }
