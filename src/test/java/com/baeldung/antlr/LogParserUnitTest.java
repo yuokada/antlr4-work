@@ -1,7 +1,5 @@
 package com.baeldung.antlr;
 
-import static org.hamcrest.CoreMatchers.is;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.baeldung.antlr.log.LogListener;
@@ -10,10 +8,8 @@ import com.baeldung.antlr.log.model.LogEntry;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
-// import org.junit.Test;
 
 import java.time.LocalDateTime;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
