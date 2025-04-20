@@ -21,7 +21,7 @@ public class Hellog4Test {
 
     @Test
     public void testGreetingWithName() {
-        String name = "adam";
+        String name = "Adam";
         CharStream input = CharStreams.fromString("hello %s".formatted(name));
         HelloLexer lexer = new HelloLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
