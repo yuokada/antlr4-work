@@ -8,3 +8,7 @@ updates:
     ignore:
       - dependency-name: "org.antlr:antlr4-runtime"
         versions: ["4.13.2"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
