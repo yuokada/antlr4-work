@@ -13,16 +13,16 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Antlr versions -->
-    <antlr.version>4.13.2</antlr.version>
+    <antlr4.version>4.13.2</antlr4.version>
     <antlr4test-maven-plugin.version>1.22</antlr4test-maven-plugin.version>
-    <junit.version>5.9.2</junit.version>
+    <junit.version>5.12.2</junit.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>org.antlr</groupId>
       <artifactId>antlr4-runtime</artifactId>
-      <version>${antlr.version}</version>
+      <version>${antlr4.version}</version>
     </dependency>
     <!-- JUnit for testing -->
     <dependency>
@@ -45,7 +45,7 @@
       <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
-        <version>${antlr.version}</version>
+        <version>${antlr4.version}</version>
         <executions>
           <execution>
             <id>antlr</id>
@@ -54,8 +54,8 @@
             </goals>
             <configuration>
               <!-- visitor パターンを生成 -->
-<!--              <visitor>true</visitor>-->
-<!--
+              <!--              <visitor>true</visitor>-->
+              <!--
               <arguments>
                 <argument>-visitor</argument>
               </arguments>
@@ -72,7 +72,7 @@
           <encoding>${project.build.sourceEncoding}</encoding>
           <source>${maven.compiler.source}</source>
           <target>${maven.compiler.target}</target>
-<!--
+          <!--
           <generatedSourcesDirectory>
             ${project.build.directory}/generated-sources/antlr4
           </generatedSourcesDirectory>
@@ -102,7 +102,7 @@
       <plugin>
         <groupId>org.antlr</groupId>
         <artifactId>antlr4-maven-plugin</artifactId>
-        <version>${antlr.version}</version>
+        <version>${antlr4.version}</version>
         <configuration>
           <sourceDirectory>
       .</sourceDirectory>
