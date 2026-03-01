@@ -77,6 +77,9 @@ expression:
     IDENTIFIER
     | literal
     | '(' expression ')'
+    | expression '[' expression ']'
+    | expression '.' IDENTIFIER
+    | expression '.' IDENTIFIER '(' (argumentList)? ')'
     | expression op=(MUL | DIV | MOD) expression
     | expression op=(ADD | SUB) expression
     | expression op=(LT | GT | LE | GE | EQ | NE) expression // Comparison operators
@@ -85,28 +88,14 @@ expression:
     | IN expression // 'in' operator for lists/maps
     | CONTAINS expression // 'contains' operator
     | IS expression // 'is' operator
-    | methodCall
-    | indexAccess
-    | fieldAccess
     | listLiteral
     | mapLiteral
-    ;
-
-methodCall:
-    expression '.' IDENTIFIER '(' (argumentList)? ')'
     ;
 
 argumentList:
     expression (',' expression)*
     ;
 
-indexAccess:
-    expression '[' expression ']'
-    ;
-
-fieldAccess:
-    expression '.' IDENTIFIER
-    ;
 
 // Literals
 literal:
@@ -194,8 +183,9 @@ STRING_LITERAL: '"' ( ~('\\'|'"') | ESCAPE_SEQUENCE )* '"'
               | '\'' ( ~('\\'|'\'') | ESCAPE_SEQUENCE )* '\''
               ;
 
-FRAGMENT ESCAPE_SEQUENCE:
-    '\\' ('b'|'t'|'n'|'f'|'r'|'u'XXXX | '"'|'\''|'\\') // Basic escapes; \uXXXX for unicode
+fragment HEX: [0-9a-fA-F];
+fragment ESCAPE_SEQUENCE:
+    '\\' ('b'|'t'|'n'|'f'|'r'|'u' HEX HEX HEX HEX | '"'|'\''|'\\') // Basic escapes; \uXXXX for unicode
     ;
 
 // Comments and Whitespace
