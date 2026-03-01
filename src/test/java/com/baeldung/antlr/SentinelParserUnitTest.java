@@ -3,6 +3,9 @@ package com.baeldung.antlr;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -99,10 +102,43 @@ public class SentinelParserUnitTest {
         assertEquals("(expression is (expression (literal null)))", isTree.toStringTree(isParser));
     }
 
+    @Test
+    public void whenUsingRealTerraformSentinelPolicies_thenParserReturnsDiagnostics() throws Exception {
+        List<String> fixturePaths = List.of(
+            "sentinel/terraform-sentinel-policies/aws/restrict-ami-owners.sentinel",
+            "sentinel/terraform-sentinel-policies/cloud-agnostic/prohibited-providers.sentinel",
+            "sentinel/terraform-sentinel-policies/common-functions/report/report.sentinel",
+            "sentinel/terraform-sentinel-policies/aws/mocks/ec2-instance-mock-tfrun.sentinel");
+
+        for (String fixturePath : fixturePaths) {
+            String source = readResource(fixturePath);
+            SentinelParser parser = newParser(source);
+            SyntaxErrorCollector errors = new SyntaxErrorCollector();
+            parser.removeErrorListeners();
+            parser.addErrorListener(errors);
+
+            ParseTree tree = parser.policy();
+
+            assertTrue(tree != null);
+            assertTrue(errors.count() > 0,
+                "Expected diagnostics for unsupported constructs in: " + fixturePath);
+        }
+    }
+
     private SentinelParser newParser(String input) {
         SentinelLexer lexer = new SentinelLexer(CharStreams.fromString(input));
+        lexer.removeErrorListeners();
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         return new SentinelParser(tokens);
+    }
+
+    private String readResource(String path) throws IOException {
+        try (InputStream stream = getClass().getClassLoader().getResourceAsStream(path)) {
+            if (stream == null) {
+                throw new IOException("Resource not found: " + path);
+            }
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     private static class SyntaxErrorCollector extends BaseErrorListener {
