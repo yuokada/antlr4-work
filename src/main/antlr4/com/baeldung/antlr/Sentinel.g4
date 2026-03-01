@@ -3,29 +3,35 @@ grammar Sentinel;
 
 // --- Parser Rules ---
 // The starting rule for a Sentinel policy file
-policy: (statement | NEWLINE)* EOF;
+policy: statement* EOF;
 
 statement:
-    variableDeclaration ';'
-    | assignment ';'
+    variableDeclaration SEMI?
+    | assignment SEMI?
     | functionDefinition
     | ruleDefinition
-    | importStatement ';'
+    | importStatement SEMI?
     | ifStatement
     | forStatement
-    | returnStatement ';'
-    | breakStatement ';'
-    | continueStatement ';'
-    | expression ';' // Simple expressions can also be statements
+    | returnStatement SEMI?
+    | breakStatement SEMI?
+    | continueStatement SEMI?
+    | expression SEMI? // Simple expressions can also be statements
     ;
 
 // Variable declaration and assignment
 variableDeclaration:
-    IDENTIFIER '=' expression
+    IDENTIFIER ASSIGN expression
     ;
 
 assignment:
-    IDENTIFIER '=' expression
+    IDENTIFIER assignmentOperator expression
+    ;
+
+assignmentOperator:
+    ASSIGN
+    | ADD_ASSIGN
+    | SUB_ASSIGN
     ;
 
 // Function definition
@@ -44,7 +50,7 @@ ruleDefinition:
 
 // Import statement
 importStatement:
-    'import' STRING_LITERAL
+    IMPORT STRING_LITERAL (AS IDENTIFIER)?
     ;
 
 // Control flow
@@ -53,7 +59,10 @@ ifStatement:
     ;
 
 forStatement:
-    'for' IDENTIFIER ('as' IDENTIFIER)? 'in' expression block ('else' block)?
+    // Sentinel style: for collection as key, value { ... }
+    FOR expression AS IDENTIFIER (COMMA IDENTIFIER)? block (ELSE block)?
+    // Compatibility with current grammar style
+    | FOR IDENTIFIER (AS IDENTIFIER)? IN expression block (ELSE block)?
     ;
 
 returnStatement:
@@ -69,20 +78,33 @@ continueStatement:
     ;
 
 block:
-    '{' (statement | NEWLINE)* '}'
+    LCURLY statement* RCURLY
     ;
 
-// Expressions (simplified)
+// Expressions:
+// 1) postfix (index/field/call)
+// 2) multiplicative
+// 3) additive
+// 4) relational/comparison
+// 5) logical
 expression:
     IDENTIFIER
     | literal
+    | functionLiteral
+    | ruleLiteral
     | '(' expression ')'
+    | functionCall
     | expression '[' expression ']'
     | expression '.' IDENTIFIER
     | expression '.' IDENTIFIER '(' (argumentList)? ')'
     | expression op=(MUL | DIV | MOD) expression
     | expression op=(ADD | SUB) expression
     | expression op=(LT | GT | LE | GE | EQ | NE) expression // Comparison operators
+    | expression IN expression
+    | expression CONTAINS expression
+    | expression IS expression
+    | expression NOT IN expression
+    | expression NOT CONTAINS expression
     | expression op=(AND | OR | XOR) expression // Logical operators
     | NOT expression
     | IN expression // 'in' operator for lists/maps
@@ -90,6 +112,18 @@ expression:
     | IS expression // 'is' operator
     | listLiteral
     | mapLiteral
+    ;
+
+functionCall:
+    IDENTIFIER '(' (argumentList)? ')'
+    ;
+
+functionLiteral:
+    FUNC '(' (parameterList)? ')' block
+    ;
+
+ruleLiteral:
+    RULE block
     ;
 
 argumentList:
@@ -103,15 +137,17 @@ literal:
     | FLOAT_LITERAL
     | STRING_LITERAL
     | BOOLEAN_LITERAL
+    | TRUE
+    | FALSE
     | NULL_LITERAL
     ;
 
 listLiteral:
-    '[' (expression (',' expression)*)? ']'
+    '[' (expression (',' expression)* COMMA?)? ']'
     ;
 
 mapLiteral:
-    '{' (keyValuePair (',' keyValuePair)*)? '}'
+    '{' (keyValuePair (',' keyValuePair)* COMMA?)? '}'
     ;
 
 keyValuePair:
@@ -151,6 +187,8 @@ MUL: '*';
 DIV: '/';
 MOD: '%';
 ASSIGN: '=';
+ADD_ASSIGN: '+=';
+SUB_ASSIGN: '-=';
 EQ: '==';
 NE: '!=';
 LT: '<';
@@ -185,14 +223,12 @@ STRING_LITERAL: '"' ( ~('\\'|'"') | ESCAPE_SEQUENCE )* '"'
 
 fragment HEX: [0-9a-fA-F];
 fragment ESCAPE_SEQUENCE:
-    '\\' ('b'|'t'|'n'|'f'|'r'|'u' HEX HEX HEX HEX | '"'|'\''|'\\') // Basic escapes; \uXXXX for unicode
+    // Keep this permissive for fixture compatibility (e.g. \033, \uXXXX, etc.).
+    '\\' ('u' HEX HEX HEX HEX | .)
     ;
 
 // Comments and Whitespace
+HASH_COMMENT: '#' ~[\r\n]* -> skip;
 LINE_COMMENT: '//' ~[\r\n]* -> skip;
 MULTI_LINE_COMMENT: '/*' .*? '*/' -> skip;
 WS: [ \t\r\n]+ -> skip; // Whitespace
-
-NEWLINE: '\r'? '\n'; // For basic line termination, though Sentinel also has automatic semicolon insertion.
-                     // The ANTLR grammar would need to carefully manage automatic semicolon insertion if desired.
-                     // For simplicity in this basic example, explicit semicolons are used.

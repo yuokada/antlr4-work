@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -40,10 +41,10 @@ public class SentinelParserUnitTest {
     }
 
     @Test
-    public void whenMissingSemicolon_thenSyntaxErrorIsReported() {
+    public void whenBlockIsNotClosed_thenSyntaxErrorIsReported() {
         String input = """
-                x = 1
-                return x;
+                if x {
+                  return x;
                 """;
 
         SentinelLexer lexer = new SentinelLexer(CharStreams.fromString(input));
@@ -103,12 +104,31 @@ public class SentinelParserUnitTest {
     }
 
     @Test
-    public void whenUsingRealTerraformSentinelPolicies_thenParserReturnsDiagnostics() throws Exception {
+    public void whenUsingRealTerraformSentinelPoliciesCompatibleSubset_thenParseSucceeds() throws Exception {
         List<String> fixturePaths = List.of(
             "sentinel/terraform-sentinel-policies/aws/restrict-ami-owners.sentinel",
             "sentinel/terraform-sentinel-policies/cloud-agnostic/prohibited-providers.sentinel",
-            "sentinel/terraform-sentinel-policies/common-functions/report/report.sentinel",
             "sentinel/terraform-sentinel-policies/aws/mocks/ec2-instance-mock-tfrun.sentinel");
+
+        for (String fixturePath : fixturePaths) {
+            String source = readResource(fixturePath);
+            SentinelParser parser = newParser(source);
+            SyntaxErrorCollector errors = new SyntaxErrorCollector();
+            parser.removeErrorListeners();
+            parser.addErrorListener(errors);
+
+            ParseTree tree = parser.policy();
+
+            assertTrue(tree != null);
+            assertEquals(0, errors.count(),
+                "Expected no syntax errors in: " + fixturePath + "\n" + errors.report());
+        }
+    }
+
+    @Test
+    public void whenUsingRealTerraformSentinelPoliciesUnsupportedSubset_thenParserReturnsDiagnostics() throws Exception {
+        List<String> fixturePaths = List.of(
+            "sentinel/terraform-sentinel-policies/common-functions/report/report.sentinel");
 
         for (String fixturePath : fixturePaths) {
             String source = readResource(fixturePath);
@@ -152,6 +172,10 @@ public class SentinelParserUnitTest {
 
         public int count() {
             return messages.size();
+        }
+
+        public String report() {
+            return messages.stream().collect(Collectors.joining("\n"));
         }
     }
 }

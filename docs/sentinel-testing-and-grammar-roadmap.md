@@ -7,7 +7,17 @@
 ## Current Status
 - Basic statements/expressions parse successfully.
 - Real policy fixtures from `hashicorp/terraform-sentinel-policies` are executed in unit tests.
-- Real fixtures currently validate "parser returns diagnostics" for unsupported constructs.
+- Fixture tests are split into two lanes:
+  - **compatible subset**: no syntax errors expected.
+  - **unsupported subset**: diagnostics expected until grammar support is added.
+
+## Fixture Regression Matrix (Current)
+- Compatible subset:
+  - `aws/restrict-ami-owners.sentinel`
+  - `cloud-agnostic/prohibited-providers.sentinel`
+  - `aws/mocks/ec2-instance-mock-tfrun.sentinel`
+- Unsupported subset:
+  - `common-functions/report/report.sentinel`
 
 ## Unsupported Constructs (High Priority)
 - `import "module" as alias`
@@ -34,3 +44,4 @@
 - Unit tests for isolated grammar behavior (operator precedence, unary operators, error paths).
 - Fixture-driven tests for real-world syntax coverage.
 - Promote fixture tests from "diagnostics expected" to "parse success expected" per grammar milestone.
+- Keep fixture path lists fixed in test code so grammar regressions are immediately visible in CI output.
