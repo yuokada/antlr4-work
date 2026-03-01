@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
 public class SentinelParserUnitTest {
@@ -52,6 +53,56 @@ public class SentinelParserUnitTest {
         parser.policy();
 
         assertTrue(errors.count() > 0);
+    }
+
+    @Test
+    public void whenExpressionUsesMultiplyAndAdd_thenMultiplyBindsStrongerThanAdd() {
+        SentinelParser parser = newParser("1 + 2 * 3");
+        SyntaxErrorCollector errors = new SyntaxErrorCollector();
+        parser.removeErrorListeners();
+        parser.addErrorListener(errors);
+
+        ParseTree tree = parser.expression();
+
+        assertEquals(0, errors.count());
+        assertEquals(
+            "(expression (expression (literal 1)) + (expression (expression (literal 2)) * (expression (literal 3))))",
+            tree.toStringTree(parser));
+    }
+
+    @Test
+    public void whenExpressionUsesInContainsIs_thenTheyParseAsUnaryOperators() {
+        SentinelParser inParser = newParser("in value");
+        SentinelParser containsParser = newParser("contains items");
+        SentinelParser isParser = newParser("is null");
+        SyntaxErrorCollector inErrors = new SyntaxErrorCollector();
+        SyntaxErrorCollector containsErrors = new SyntaxErrorCollector();
+        SyntaxErrorCollector isErrors = new SyntaxErrorCollector();
+
+        inParser.removeErrorListeners();
+        containsParser.removeErrorListeners();
+        isParser.removeErrorListeners();
+        inParser.addErrorListener(inErrors);
+        containsParser.addErrorListener(containsErrors);
+        isParser.addErrorListener(isErrors);
+
+        ParseTree inTree = inParser.expression();
+        ParseTree containsTree = containsParser.expression();
+        ParseTree isTree = isParser.expression();
+
+        assertEquals(0, inErrors.count());
+        assertEquals(0, containsErrors.count());
+        assertEquals(0, isErrors.count());
+        assertEquals("(expression in (expression value))", inTree.toStringTree(inParser));
+        assertEquals("(expression contains (expression items))",
+            containsTree.toStringTree(containsParser));
+        assertEquals("(expression is (expression (literal null)))", isTree.toStringTree(isParser));
+    }
+
+    private SentinelParser newParser(String input) {
+        SentinelLexer lexer = new SentinelLexer(CharStreams.fromString(input));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        return new SentinelParser(tokens);
     }
 
     private static class SyntaxErrorCollector extends BaseErrorListener {
