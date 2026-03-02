@@ -115,7 +115,40 @@ assertEquals("(greeting hello world)", tree.toStringTree(parser));
 
 対応状況と今後の方針は [sentinel-testing-and-grammar-roadmap.md](/Users/yuokada/ghq/github.com/yuokada/antlr4-work/docs/sentinel-testing-and-grammar-roadmap.md) を参照してください。
 
-## 8. 参考
+## 8. 失敗時のデバッグ手順
+
+Sentinel 関連でテストが落ちた場合は、次の順で切り分けると早いです。
+
+1. Sentinel テストだけ実行して失敗を再現
+
+```bash
+./mvnw -Dtest=SentinelParserUnitTest test
+```
+
+2. 互換/未対応どちらの fixture が失敗したか確認  
+`SentinelParserUnitTest` はパラメタライズされているため、失敗ケース名に fixture パスが出ます。
+
+3. 構文エラー詳細を確認  
+`SyntaxErrorCollector` のメッセージ（`line x:y ...`）を見て、`Sentinel.g4` の該当規則を確認します。
+
+4. 必要に応じて最小入力で再現  
+`CharStreams.fromString(...)` で最小ケースを作り、`toStringTree(parser)` で木構造を確認します。
+
+```java
+SentinelParser parser = new SentinelParser(
+    new CommonTokenStream(new SentinelLexer(CharStreams.fromString("main = rule { true }")))
+);
+ParseTree tree = parser.policy();
+System.out.println(tree.toStringTree(parser));
+```
+
+5. 修正後は全体回帰を実行
+
+```bash
+./mvnw test
+```
+
+## 9. 参考
 
 - [Java with ANTLR | Baeldung](https://www.baeldung.com/java-antlr)
 - [eugenp/tutorials ANTLR module](https://github.com/eugenp/tutorials/tree/master/text-processing-libraries-modules/antlr)

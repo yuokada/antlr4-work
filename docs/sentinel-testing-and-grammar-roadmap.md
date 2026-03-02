@@ -11,6 +11,30 @@
   - **compatible subset**: no syntax errors expected.
   - **unsupported subset**: diagnostics expected until grammar support is added.
 
+## Supported Syntax (Current)
+- Statements:
+  - variable assignment: `name = expr`, `name += expr`, `name -= expr`
+  - `import "module"` and `import "module" as alias`
+  - `if ... { ... } else { ... }`
+  - `for collection as key { ... }` / `for collection as key, value { ... }`
+  - `return`, `break`, `continue`
+- Callable constructs:
+  - function definition: `func name(arg1, arg2) { ... }`
+  - function literal: `func(arg1, arg2) { ... }`
+  - call: `fn(a, b)` and `obj.method(a, b)`
+- Rule constructs:
+  - named rule block: `rule name { ... }`
+  - rule literal expression: `rule { ... }`
+- Expressions:
+  - arithmetic: `+`, `-`, `*`, `/`, `%`
+  - comparison: `==`, `!=`, `<`, `<=`, `>`, `>=`
+  - logical: `and`, `or`, `xor`, `not`
+  - Sentinel-style operators: `in`, `contains`, `is`, `not in`, `not contains`
+  - postfix access: `obj.field`, `list[index]`, `obj.method()`
+  - literals: int/float/string/bool/null, list/map literals（末尾カンマ対応）
+- Comments:
+  - `# ...`, `// ...`, `/* ... */`
+
 ## Fixture Regression Matrix (Current)
 - Compatible subset:
   - `aws/restrict-ami-owners.sentinel`
@@ -20,11 +44,9 @@
   - `common-functions/report/report.sentinel`
 
 ## Unsupported Constructs (High Priority)
-- `import "module" as alias`
-- `main = rule { ... }` and inline `rule` expressions
-- Collection iteration forms used in real policies (`for x as k, v { ... }`)
-- Additional operators/keywords patterns seen in upstream policies
-- Comment forms and escape patterns beyond current grammar coverage
+- `report.sentinel` で使われる一部の高度な入れ子表現・文字列操作パターン
+- 実運用ポリシー全体をカバーするための追加演算子/式パターン
+- `for` や関数リテラルのネストが深いケースでの互換性強化
 
 ## Incremental Implementation Plan
 1. Add parser/lexer rules for `import ... as ...` and cover with focused unit tests.
