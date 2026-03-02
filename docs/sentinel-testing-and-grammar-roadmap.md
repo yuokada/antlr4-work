@@ -33,6 +33,9 @@
 4. Move selected fixture assertions from "diagnostics expected" to "no syntax error expected" as support lands.
 5. Keep grammar ambiguity checks by running full Maven test on each step.
 
+Issue candidate drafts are tracked in `docs/sentinel-issue-backlog.md`
+because GitHub Issues are currently disabled for this repository.
+
 ## Fixture Selection Criteria
 - Prefer short files first (easy failure localization).
 - Include representative syntax from production-style policies (`import`, `rule`, loops, maps/lists, function defs).

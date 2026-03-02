@@ -37,6 +37,12 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -69,8 +75,6 @@
         <version>3.15.0</version>
         <configuration>
           <encoding>${project.build.sourceEncoding}</encoding>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
           <!--
           <generatedSourcesDirectory>
             ${project.build.directory}/generated-sources/antlr4

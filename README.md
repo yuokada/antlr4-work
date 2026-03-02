@@ -102,7 +102,20 @@ assertEquals("(greeting hello world)", tree.toStringTree(parser));
 - `toStringTree(parser)` で構文木の期待値を検証
 - 構文エラー検証時は `BaseErrorListener` を差し替えて件数を確認
 
-## 7. 参考
+## 7. Sentinel 文法の互換性
+
+`Sentinel.g4` は段階的に互換性を拡張しています。現在の運用は次の2レーンです。
+
+- 互換サブセット（構文エラー 0 を期待）
+  - `aws/restrict-ami-owners.sentinel`
+  - `cloud-agnostic/prohibited-providers.sentinel`
+  - `aws/mocks/ec2-instance-mock-tfrun.sentinel`
+- 未対応サブセット（診断を期待）
+  - `common-functions/report/report.sentinel`
+
+対応状況と今後の方針は [sentinel-testing-and-grammar-roadmap.md](/Users/yuokada/ghq/github.com/yuokada/antlr4-work/docs/sentinel-testing-and-grammar-roadmap.md) を参照してください。
+
+## 8. 参考
 
 - [Java with ANTLR | Baeldung](https://www.baeldung.com/java-antlr)
 - [eugenp/tutorials ANTLR module](https://github.com/eugenp/tutorials/tree/master/text-processing-libraries-modules/antlr)

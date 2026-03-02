@@ -9,12 +9,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.api.Test;
 
 public class SentinelParserUnitTest {
@@ -103,46 +106,50 @@ public class SentinelParserUnitTest {
         assertEquals("(expression is (expression (literal null)))", isTree.toStringTree(isParser));
     }
 
-    @Test
-    public void whenUsingRealTerraformSentinelPoliciesCompatibleSubset_thenParseSucceeds() throws Exception {
-        List<String> fixturePaths = List.of(
+    @ParameterizedTest(name = "[compatible] {0}")
+    @MethodSource("compatibleFixturePaths")
+    public void whenUsingRealTerraformSentinelPoliciesCompatibleSubset_thenParseSucceeds(
+        String fixturePath) throws Exception {
+        String source = readResource(fixturePath);
+        SentinelParser parser = newParser(source);
+        SyntaxErrorCollector errors = new SyntaxErrorCollector();
+        parser.removeErrorListeners();
+        parser.addErrorListener(errors);
+
+        ParseTree tree = parser.policy();
+
+        assertTrue(tree != null);
+        assertEquals(0, errors.count(),
+            "Expected no syntax errors in: " + fixturePath + "\n" + errors.report());
+    }
+
+    @ParameterizedTest(name = "[unsupported] {0}")
+    @MethodSource("unsupportedFixturePaths")
+    public void whenUsingRealTerraformSentinelPoliciesUnsupportedSubset_thenParserReturnsDiagnostics(
+        String fixturePath) throws Exception {
+        String source = readResource(fixturePath);
+        SentinelParser parser = newParser(source);
+        SyntaxErrorCollector errors = new SyntaxErrorCollector();
+        parser.removeErrorListeners();
+        parser.addErrorListener(errors);
+
+        ParseTree tree = parser.policy();
+
+        assertTrue(tree != null);
+        assertTrue(errors.count() > 0,
+            "Expected diagnostics for unsupported constructs in: " + fixturePath);
+    }
+
+    static Stream<String> compatibleFixturePaths() {
+        return Stream.of(
             "sentinel/terraform-sentinel-policies/aws/restrict-ami-owners.sentinel",
             "sentinel/terraform-sentinel-policies/cloud-agnostic/prohibited-providers.sentinel",
             "sentinel/terraform-sentinel-policies/aws/mocks/ec2-instance-mock-tfrun.sentinel");
-
-        for (String fixturePath : fixturePaths) {
-            String source = readResource(fixturePath);
-            SentinelParser parser = newParser(source);
-            SyntaxErrorCollector errors = new SyntaxErrorCollector();
-            parser.removeErrorListeners();
-            parser.addErrorListener(errors);
-
-            ParseTree tree = parser.policy();
-
-            assertTrue(tree != null);
-            assertEquals(0, errors.count(),
-                "Expected no syntax errors in: " + fixturePath + "\n" + errors.report());
-        }
     }
 
-    @Test
-    public void whenUsingRealTerraformSentinelPoliciesUnsupportedSubset_thenParserReturnsDiagnostics() throws Exception {
-        List<String> fixturePaths = List.of(
+    static Stream<String> unsupportedFixturePaths() {
+        return Stream.of(
             "sentinel/terraform-sentinel-policies/common-functions/report/report.sentinel");
-
-        for (String fixturePath : fixturePaths) {
-            String source = readResource(fixturePath);
-            SentinelParser parser = newParser(source);
-            SyntaxErrorCollector errors = new SyntaxErrorCollector();
-            parser.removeErrorListeners();
-            parser.addErrorListener(errors);
-
-            ParseTree tree = parser.policy();
-
-            assertTrue(tree != null);
-            assertTrue(errors.count() > 0,
-                "Expected diagnostics for unsupported constructs in: " + fixturePath);
-        }
     }
 
     private SentinelParser newParser(String input) {
