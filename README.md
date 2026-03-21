@@ -113,7 +113,7 @@ assertEquals("(greeting hello world)", tree.toStringTree(parser));
 - 未対応サブセット（診断を期待）
   - `common-functions/report/report.sentinel`
 
-対応状況と今後の方針は [sentinel-testing-and-grammar-roadmap.md](/Users/yuokada/ghq/github.com/yuokada/antlr4-work/docs/sentinel-testing-and-grammar-roadmap.md) を参照してください。
+対応状況と今後の方針は [sentinel-testing-and-grammar-roadmap.md](/docs/sentinel-testing-and-grammar-roadmap.md) を参照してください。
 
 ## 8. 失敗時のデバッグ手順
 
