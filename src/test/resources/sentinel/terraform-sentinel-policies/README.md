@@ -1,6 +1,6 @@
 # Fixture Provenance
 
-このディレクトリ配下の `.sentinel` ファイルは、以下の upstream から取得したテスト用 fixture です。
+The `.sentinel` files under this directory are test fixtures imported from the following upstream source.
 
 - Repository: `https://github.com/hashicorp/terraform-sentinel-policies`
 - Upstream HEAD at import time: `b0bd9902f1db35f922f7d33ff10c35e88c380f0e`
@@ -26,4 +26,4 @@ cp /tmp/terraform-sentinel-policies/common-functions/report/report.sentinel \
   src/test/resources/sentinel/terraform-sentinel-policies/common-functions/report/report.sentinel
 ```
 
-更新時は、`SentinelParserUnitTest` の互換サブセット/未対応サブセット分類が妥当か必ず見直してください。
+When refreshing these fixtures, always review whether the supported-subset vs. unsupported-subset classification in `SentinelParserUnitTest` is still appropriate.

@@ -1,5 +1,5 @@
 ---
-applyTo: "README.md,src/test/resources/**/*.md"
+applyTo: "README.md,docs/**/*.md"
 ---
 
 ドキュメントを編集する場合は、以下を守ってください。
